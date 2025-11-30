@@ -200,7 +200,7 @@ func (api *Client) UnfurlMessageContext(ctx context.Context, channelID, timestam
 // UnfurlMessageWithMetadataContext unfurls a message in a channel with a
 // custom context, with the given metadata.
 // Slack API docs: https://api.slack.com/methods/chat.unfurl
-func (api *Client) UnfurlMessageWithMetadataContext(ctx context.Context, channelID, timestamp string, metadata UnfurlMetadata, options ...MsgOption) (string, string, string, error) {
+func (api *Client) UnfurlMessageWithMetadataContext(ctx context.Context, channelID string, metadata UnfurlMetadata, options ...MsgOption) (string, string, string, error) {
 	return api.SendMessageContext(ctx, channelID, MsgOptionUnfurlMetadata(metadata), MsgOptionCompose(options...))
 }
 
