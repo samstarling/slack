@@ -200,8 +200,8 @@ func (api *Client) UnfurlMessageContext(ctx context.Context, channelID, timestam
 // UnfurlMessageWithMetadataContext unfurls a message in a channel with a
 // custom context, with the given metadata.
 // Slack API docs: https://api.slack.com/methods/chat.unfurl
-func (api *Client) UnfurlMessageWithMetadataContext(ctx context.Context, channelID string, metadata UnfurlMetadata, options ...MsgOption) (string, string, string, error) {
-	return api.SendMessageContext(ctx, channelID, MsgOptionUnfurlMetadata(metadata), MsgOptionCompose(options...))
+func (api *Client) UnfurlMessageWithMetadataContext(ctx context.Context, channelID, timestamp string, metadata UnfurlMetadata, options ...MsgOption) (string, string, string, error) {
+	return api.SendMessageContext(ctx, channelID, MsgOptionUnfurlMetadata(timestamp, metadata), MsgOptionCompose(options...))
 }
 
 // UnfurlMessageWithAuthURL sends an unfurl request containing an authentication URL.
@@ -475,6 +475,21 @@ func MsgOptionUnfurl(timestamp string, unfurls map[string]Attachment) MsgOption 
 	}
 }
 
+// MsgOptionUnfurlMetadata unfurls a message based on the timestamp, with the
+// given metadata, which relates to work objects.
+// See: https://docs.slack.dev/reference/methods/chat.unfurl/
+func MsgOptionUnfurlMetadata(timestamp string, metadata UnfurlMetadata) MsgOption {
+	return func(config *sendConfig) error {
+		config.endpoint = config.apiurl + string(chatUnfurl)
+		config.values.Add("ts", timestamp)
+		meta, err := json.Marshal(metadata)
+		if err == nil {
+			config.values.Set("metadata", string(meta))
+		}
+		return err
+	}
+}
+
 // MsgOptionUnfurlAuthURL unfurls a message using an auth url based on the timestamp.
 func MsgOptionUnfurlAuthURL(timestamp string, userAuthURL string) MsgOption {
 	return func(config *sendConfig) error {
@@ -709,18 +724,6 @@ func MsgOptionIconEmoji(iconEmoji string) MsgOption {
 func MsgOptionMetadata(metadata SlackMetadata) MsgOption {
 	return func(config *sendConfig) error {
 		config.metadata = metadata
-		meta, err := json.Marshal(metadata)
-		if err == nil {
-			config.values.Set("metadata", string(meta))
-		}
-		return err
-	}
-}
-
-// MsgOptionUnfurlMetadata sets metadata for an unfurl request.
-// See: https://docs.slack.dev/reference/methods/chat.unfurl/
-func MsgOptionUnfurlMetadata(metadata UnfurlMetadata) MsgOption {
-	return func(config *sendConfig) error {
 		meta, err := json.Marshal(metadata)
 		if err == nil {
 			config.values.Set("metadata", string(meta))
