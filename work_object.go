@@ -24,8 +24,8 @@ type WorkObjectEntityAttributes struct {
 }
 
 type WorkObjectEntityPayload struct {
-	Attributes WorkObjectEntityAttributes `json:"attributes"`
-	Fields     map[string]any             `json:"fields"`
+	Attributes WorkObjectEntityAttributes `json:"attributes,omitempty"`
+	Fields     map[string]any             `json:"fields,omitempty"`
 }
 
 type WorkObjectOption func(*WorkObjectEntity)
